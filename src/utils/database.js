@@ -19,7 +19,8 @@ async function connectToDatabase() {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        connectionLimit: 10, // Number of parallel connections to database
+        connectionLimit: 20, // Number of parallel connections to database
+        connectTimeout: 15000,
         stream: tunnelStream // Talking to database over ssh tunnel
     });
 
@@ -40,6 +41,6 @@ function getDatabasePool() {
 module.exports = {
     connectToDatabase,
     closeDatabaseConnection,
-    getDatabasePool,
+    getDatabasePool: () => pool,
     mysqlPromise: mysql // This allows other parts of the program to use same instance of promise if needed
 };
