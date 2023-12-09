@@ -4,6 +4,13 @@ const ssh = require('./sshTunnel');
 let pool;
 
 async function connectToDatabase() {
+
+    // Check if required environment variables are set
+    const requiredEnvVars = ['DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+    if (!requiredEnvVars.every(varName => process.env[varName])) {
+        throw new Error('Missing required environment variables for database connection.');
+    }
+
     const tunnelStream = await ssh.setupTunnel();
 
     pool = mysql.createPool({
@@ -33,5 +40,6 @@ function getDatabasePool() {
 module.exports = {
     connectToDatabase,
     closeDatabaseConnection,
-    getDatabasePool
+    getDatabasePool,
+    mysqlPromise: mysql // This allows other parts of the program to use same instance of promise if needed
 };
