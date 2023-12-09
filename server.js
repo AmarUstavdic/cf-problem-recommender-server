@@ -1,8 +1,13 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const { connectToDatabase, getDatabasePool, closeDatabaseConnection } = require('./src/utils/database');
 
 
 const server = express();
+
+
+// Middleware
+server.use(bodyParser.json());
 
 
 connectToDatabase()
@@ -36,7 +41,7 @@ server.use(async (req, res, next) => {
 server.get('/', async (req, res) => {
     try {
         const db = req.dbConnection;
-        const [rows] = await db.query('SELECT * FROM your_table');
+        const [rows] = await db.query('SELECT * FROM user');
         res.json(rows);
     } catch (error) {
         console.error('Error querying database:', error);
