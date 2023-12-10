@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { connectToDatabase, getDatabasePool, closeDatabaseConnection } = require('./src/utils/database');
+const { router: authRouter } = require('./src/routes/authRoutes');
 
 
 const server = express();
@@ -12,6 +13,25 @@ server.use(bodyParser.json());
 
 connectToDatabase()
     .then(() => {
+        server.get('/test', async (req, res) => {
+            try {
+                const db = req.dbConnection;
+                const [rows] = await db.query('SELECT * FROM user');
+                res.json({ message: 'Database connection test successful', result: rows });
+            } catch (error) {
+                console.error('Error testing database connection:', error);
+                res.status(500).json({ error: 'Internal Server Error', message: error.message });
+            } finally {
+                if (req.dbConnection) {
+                    req.dbConnection.release();
+                }
+            }
+        });
+
+        // Use the authRouter for routes starting with '/auth'
+        server.use('/auth', authRouter);
+
+
         // Making sure server is started only after database is connected
         const port = process.env.PORT || 3000;
         server.listen(port, () => {
